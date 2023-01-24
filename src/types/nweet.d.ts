@@ -1,5 +1,5 @@
 export interface Nweet {
   id: string
-  nweet: string
+  text: string
   createdAt: Date
 }

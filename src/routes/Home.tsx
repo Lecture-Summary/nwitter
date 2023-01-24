@@ -1,31 +1,40 @@
 import { dbService } from 'fbase'
+import { User } from 'firebase/auth'
 import {
   addDoc,
   collection,
   CollectionReference,
-  getDocs,
+  onSnapshot,
 } from 'firebase/firestore'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import { Nweet } from 'types/nweet'
 
-const Home = () => {
+interface Props {
+  userObj: User | null
+}
+
+const Home = ({ userObj }: Props) => {
   const [nweet, setNweet] = useState('')
   const [nweets, setNweets] = useState<Nweet[]>([])
-  const getNweets = async () => {
-    const querySnapshot = await getDocs(
-      collection(dbService, 'nweets') as CollectionReference<Nweet>
-    )
-    setNweets(querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
-  }
   useEffect(() => {
-    getNweets()
+    onSnapshot(
+      collection(dbService, 'nweets') as CollectionReference<Nweet>,
+      (snapshot) => {
+        const nweetArray = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }))
+        setNweets(nweetArray)
+      }
+    )
   }, [])
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     await addDoc(collection(dbService, 'nweets'), {
-      nweet,
+      text: nweet,
       createdAt: Date.now(),
+      creatorId: userObj?.uid,
     })
     setNweet('')
   }
@@ -50,7 +59,7 @@ const Home = () => {
       <div>
         {nweets.map((nweet) => (
           <div key={nweet.id}>
-            <h4>{nweet.nweet}</h4>
+            <h4>{nweet.text}</h4>
           </div>
         ))}
       </div>
