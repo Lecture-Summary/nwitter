@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
-import Auth from '../routes/Auth'
-import Home from '../routes/Home'
+import Auth from 'routes/Auth'
+import Home from 'routes/Home'
 
-const AppRouter = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+interface Props {
+  isLoggedIn: boolean
+}
 
+const AppRouter = ({ isLoggedIn }: Props) => {
   const router = createHashRouter([
     {
       path: '/',
